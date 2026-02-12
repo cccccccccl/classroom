@@ -186,11 +186,49 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
-    @apply bg-background text-foreground;
+    font-family: "Geist Mono", ui-monospace, monospace;
     letter-spacing: var(--tracking-normal);
+  }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground;
+  }
+  ::selection {
+    background: oklch(0.7214 0.1337 49.9802 / 0.3);
+    color: inherit;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.35s ease-out both;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px oklch(0.7214 0.1337 49.9802 / 0.25);
+  }
+
+  .glow-border {
+    border-color: oklch(0.7214 0.1337 49.9802 / 0.6);
+    box-shadow: 0 0 0 1px oklch(0.7214 0.1337 49.9802 / 0.2);
+  }
+
+  .grid-pattern {
+    background-image:
+      linear-gradient(oklch(0.2520 0 0 / 0.4) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.2520 0 0 / 0.4) 1px, transparent 1px);
+    background-size: 40px 40px;
   }
 }
