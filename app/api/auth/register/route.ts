@@ -4,6 +4,8 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { setSession } from "@/lib/auth";
+import { createSession } from "@/lib/sessions";
+import { extractIp, getGeoInfo, parseBrowser, parseOS } from "@/lib/geo";
 
 
 export async function POST(request: NextRequest) {
@@ -26,9 +28,9 @@ export async function POST(request: NextRequest) {
     };
 
     const existing = await db
-      .select()
+      .select({ id: users.id })
       .from(users)
-      .where(eq(users.email, email.toLowerCase()))
+      .where(eq(users.email, email.toLowerCase().trim()))
       .limit(1);
 
     if (existing.length > 0) {
@@ -55,15 +57,29 @@ export async function POST(request: NextRequest) {
         role: users.role,
       });
 
-    await setSession({
+    const ip = extractIp(request);
+    const geo = await getGeoInfo(ip);
+    const ua = request.headers.get("user-agent") || "";
+
+    const tokenId = await setSession({
       userId: newUser.id,
       email: newUser.email,
       name: newUser.name,
       role: newUser.role,
     });
 
+    await createSession({
+      userId: newUser.id,
+      tokenId,
+      ip,
+      ...geo,
+      browser: parseBrowser(ua),
+      os: parseOS(ua),
+      userAgent: ua,
+    });
+
     return NextResponse.json(
-      { message: "Account created successfully", user: { id: newUser.id, email: newUser.email, name: newUser.name, role: newUser.role } },
+      { message: "Account created successfully", user: { id: newUser.id, email: newUser.email, name: newUser.name } },
       { status: 201 },
     );
   } catch (error) {
