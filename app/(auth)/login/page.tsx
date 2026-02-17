@@ -3,17 +3,32 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Lock, Mail, Zap } from "lucide-react";
+import { CheckCircle, Eye, EyeOff, Lock, Mail, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+function SuccessToast({ name }: { name: string }) {
+  return (
+    <div className="fixed top-6 right-6 z-50 flex items-center gap-3 px-4 py-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 shadow-lg animate-fade-in">
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/20 shrink-0">
+        <CheckCircle className="w-4 h-4 text-emerald-400" />
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-emerald-400">Welcome back, {name}!</p>
+        <p className="text-xs text-emerald-400/70 mt-0.5">Redirecting you now...</p>
+      </div>
+    </div>
+  )
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [successName, setSuccessName] = useState<string | null>(null);
   const [formData, setFormData] = useState({ email: "", password: "" });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -35,13 +50,12 @@ export default function LoginPage() {
         return;
       };
 
-      if (data.user.role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
-      };
+      setSuccessName(data.user.name.split(" ")[0]);
 
-      router.refresh();
+      setTimeout(() => {
+        router.push(data.user.role === "admin" ? "/admin" : "/dashboard");
+        router.refresh();
+      }, 1200);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -51,6 +65,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden">
+      {successName && <SuccessToast name={successName} />}
       <div className="absolute inset-0 grid-pattern opacity-40" />
       <div className="relative z-10 w-full max-w-md px-4 animate-fade-in">
         <div className="flex items-center justify-center gap-2 mb-8">

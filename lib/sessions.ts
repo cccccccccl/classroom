@@ -89,12 +89,12 @@ export async function revokeAllSessions(userId: string): Promise<void> {
 
 export async function revokedOtherSessions(userId: string, currentTokenId: string): Promise<void> {
   const rows = await db
-    .select({ id: sessions.id })
+    .select({ id: sessions.id, tokenId: sessions.tokenId })
     .from(sessions)
     .where(and(eq(sessions.userId, userId), eq(sessions.isRevoked, false)));
 
   const otherIds = rows
-    .filter((r) => r.id !== currentTokenId)
+    .filter((r) => r.tokenId !== currentTokenId)
     .map((r) => r.id);
 
   if (otherIds.length === 0) return;

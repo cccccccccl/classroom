@@ -5,6 +5,7 @@ export interface UserData {
   role: "user" | "admin";
   isActive: boolean;
   createdAt: Date;
+  updatedAt: Date;
 };
 
 export interface SessionInfo {
@@ -25,3 +26,4 @@ export interface Toast {
 };
 
 export type Tab = "profile" | "settings" | "sessions";
+export type UserFormPayload = Partial<UserData> & { password?: string };
